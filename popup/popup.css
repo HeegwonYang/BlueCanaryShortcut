@@ -1,0 +1,49 @@
+html,
+body {
+  width: 300px;
+  background-color:rgb(25, 55, 114);
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+button {
+  border: none;
+  width: 100%;
+  margin: 3% auto;
+  padding: 4px;
+  text-align: center;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: white;
+  background-color: #208bfe;
+}
+
+input {
+  width: 75%;
+  margin: 3px auto;
+}
+
+#input-field {
+  text-align: center;
+}
+
+button:hover {
+  background-color:  #0756aa;
+}
+
+
+
+p[type="header"]{
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: bold; 
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+p[type="subheader"]{
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+}

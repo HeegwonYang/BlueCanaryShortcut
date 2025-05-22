@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+
+  <body>
+    <div id="login-content">
+      <p type="header">Blue Canary Shortcut</p>
+      <p type="subheader">Login to your Bluesky account to start</p>
+      <div id="input-field">
+        <input type="text" id="user" name="user" placeholder="handle.bsky.social"/>
+        <input type="text" id="pass" name="pass" placeholder="Password (App password preferred)"/>
+      </div>
+      <button type="login">Login</button>
+    </div>
+    <div id="active-content" class="hidden">
+      <p type="subheader">Currently logged in as:</p>
+      <p>Username and handle placeholder</p>
+      <button type="logout">Logout</button>
+    </div>
+    <div id="error-content" class="hidden">
+      <p>An error occurred:</p>
+    </div>
+    <script src="choose_beast.js"></script>
+  </body>
+</html>
