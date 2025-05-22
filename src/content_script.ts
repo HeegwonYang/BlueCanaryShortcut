@@ -11,7 +11,6 @@ async function agentLogin(handle, pass){
             password: pass
         })
 
-        const { data } = await agent.getProfile({})
         browser.runtime.sendMessage({
             command: "activate"
         })

@@ -38,12 +38,12 @@ function set_event_listeners() {
         return;
     }
 
-    if ((e.target as HTMLInputElement).type === "login"){
+    if ((e.target as HTMLElement).id === "login"){
         browser.tabs.query({active: true, currentWindow: true})
                 .then(login)
                 .catch(logError);
     }
-    else if ((e.target as HTMLInputElement).type === "logout"){
+    else if ((e.target as HTMLElement).id === "logout"){
         browser.tabs.query({active: true, currentWindow: true})
                 .then(logout)
                 .catch(logError);

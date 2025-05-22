@@ -14,7 +14,7 @@
   "content_scripts": [
     {
       "matches": ["*://bsky.app/*"],
-      "js": ["content_script.js"]
+      "js": ["content_script.ts"]
     }
   ],
 
