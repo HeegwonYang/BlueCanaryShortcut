@@ -11,7 +11,7 @@
       <p type="subheader">Login to your Bluesky account to start</p>
       <div id="input-field">
         <input type="text" id="user" name="user" placeholder="handle.bsky.social"/>
-        <input type="text" id="pass" name="pass" placeholder="Password (App password preferred)"/>
+        <input type="password" id="pass" name="pass" placeholder="Password (App password preferred)"/>
       </div>
       <button id="login">Login</button>
     </div>
@@ -23,6 +23,6 @@
     <div id="error-content" class="hidden">
       <p>An error occurred:</p>
     </div>
-    <script src="popup.ts"></script>
+    <script src="./popup.js" defer></script>
   </body>
 </html>

@@ -1,5 +1,13 @@
 import { AtpAgent } from '@atproto/api'
 
+let port = browser.runtime.connect({name: "port-from-cs"});
+port.postMessage("hello from content script");
+
+port.onMessage.addListener((m: Array<any>) => {
+  console.log("In content script, received message from background script");
+  console.log(m);
+});
+
 const agent = new AtpAgent({
     service: 'https://bsky.social'
 })
@@ -27,7 +35,7 @@ async function agentLogin(handle, pass){
 /*
     Listen for messages from background script, and call agentLogin as necessary
  */
-browser.runtime.onMessage.addListener((message) => {
+port.onMessage.addListener((message) => {
     if (message.command === "login"){
         agentLogin(message.identifier, message.password);
     }

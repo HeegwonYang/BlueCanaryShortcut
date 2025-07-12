@@ -6,21 +6,23 @@
   "description": "Adds a bookmark button to every Bluesky post to send quick reports to kiiroy",
   "homepage_url": "https://github.com/mdn/webextensions-examples/tree/main/beastify",
   "icons": {
-    "48": "icons/beasts-48.png"
   },
 
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "storage", "scripting"],
+
+  "background": {
+    "scripts": ["popup/popup.js"]
+  },
 
   "content_scripts": [
     {
       "matches": ["*://bsky.app/*"],
-      "js": ["content_script.ts"]
+      "js": ["content_script.js"]
     }
   ],
 
   "action": {
-    "default_icon": "icons/beasts-32.png",
-    "default_title": "Beastify",
+    "default_title": "Blue Canary Shortcut",
     "default_popup": "popup/popup.html"
   }
 }
