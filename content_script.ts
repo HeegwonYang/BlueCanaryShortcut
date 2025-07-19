@@ -1,3 +1,5 @@
+console.log("content script is loaded successfully.");
+
 type Message = {
     readonly command: string;
     identifier: string;
@@ -7,7 +9,7 @@ type Message = {
 
 import { AtpAgent } from '@atproto/api'
 
-let port = browser.runtime.connect({name: "port-from-cs"});
+let port = browser.runtime.connect({name: "portFromCS"});
 port.postMessage("hello from content script");
 
 port.onMessage.addListener((m: Array<any>) => {

@@ -2,6 +2,8 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "CommonJS",
+    "skipLibCheck": true,
     "sourceMap": true
-  }
+  },
+   "files": ["popup/popup.ts", "content_script.ts"]
 }

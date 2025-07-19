@@ -9,7 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+console.log("content script is loaded successfully.");
 const api_1 = require("@atproto/api");
+let port = browser.runtime.connect({ name: "portFromCS" });
+port.postMessage("hello from content script");
+port.onMessage.addListener((m) => {
+    console.log("In content script, received message from background script");
+    console.log(m);
+});
 const agent = new api_1.AtpAgent({
     service: 'https://bsky.social'
 });
@@ -36,7 +43,7 @@ function agentLogin(handle, pass) {
 /*
     Listen for messages from background script, and call agentLogin as necessary
  */
-browser.runtime.onMessage.addListener((message) => {
+port.onMessage.addListener((message) => {
     if (message.command === "login") {
         agentLogin(message.identifier, message.password);
     }
