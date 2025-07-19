@@ -1,3 +1,10 @@
+type Message = {
+    readonly command: string;
+    identifier: string;
+    password: string;
+    error: string;
+}
+
 import { AtpAgent } from '@atproto/api'
 
 let port = browser.runtime.connect({name: "port-from-cs"});
@@ -35,7 +42,7 @@ async function agentLogin(handle, pass){
 /*
     Listen for messages from background script, and call agentLogin as necessary
  */
-port.onMessage.addListener((message) => {
+port.onMessage.addListener((message: Message) => {
     if (message.command === "login"){
         agentLogin(message.identifier, message.password);
     }
