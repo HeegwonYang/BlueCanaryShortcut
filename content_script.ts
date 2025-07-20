@@ -1,4 +1,5 @@
 console.log("content script is loaded successfully.");
+document.body.style.background = 'yellow';
 
 type Message = {
     readonly command: string;

@@ -11,12 +11,12 @@
   "permissions": ["activeTab", "storage", "scripting"],
 
   "background": {
-    "scripts": ["popup/popup.js"]
+    "scripts": ["background.js"]
   },
 
   "content_scripts": [
     {
-      "matches": ["*://*.mozilla.org/*"],
+      "matches": ["*://bsky.app/*"],
       "js": ["content_script.js"]
     }
   ],

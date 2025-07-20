@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 console.log("content script is loaded successfully.");
+document.body.style.background = 'yellow';
 const api_1 = require("@atproto/api");
 let port = browser.runtime.connect({ name: "portFromCS" });
 port.postMessage("hello from content script");

@@ -5,5 +5,5 @@
     "skipLibCheck": true,
     "sourceMap": true
   },
-   "files": ["popup/popup.ts", "content_script.ts"]
+   "files": ["popup/popup.ts", "content_script.ts", "background.ts"]
 }

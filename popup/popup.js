@@ -11,8 +11,6 @@ window.addEventListener("DOMContentLoaded", function () {
     var login = document.getElementById('login');
     var logout = document.getElementById("logout");
     let portFromCS;
-    console.log(login);
-    console.log(logout);
     function loginFunc() {
         const identifier = document.getElementById("user").value;
         const password = document.getElementById("pass").value;
