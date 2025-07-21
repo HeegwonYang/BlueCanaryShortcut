@@ -11,7 +11,8 @@
   "permissions": ["activeTab", "storage", "scripting"],
 
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["src/popup/popup.js", "src/background.js"],
+    "type": "module"
   },
 
   "content_scripts": [
