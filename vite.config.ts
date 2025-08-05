@@ -6,6 +6,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         background: "./src/background.ts",
+        popup: "./src/popup/popup.ts",
+        content_script: "./src/content_script.ts"
       },
       output: {
         entryFileNames: `[name].js`,

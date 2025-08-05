@@ -11,19 +11,19 @@
   "permissions": ["activeTab", "storage", "scripting"],
 
   "background": {
-    "scripts": ["src/popup/popup.js", "src/background.js"],
+    "scripts": ["dist/background.js"],
     "type": "module"
   },
 
   "content_scripts": [
     {
       "matches": ["*://bsky.app/*"],
-      "js": ["content_script.js"]
+      "js": ["dist/content_script.js"]
     }
   ],
 
   "action": {
     "default_title": "Blue Canary Shortcut",
-    "default_popup": "popup/popup.html"
+    "default_popup": "src/popup/popup.html"
   }
 }

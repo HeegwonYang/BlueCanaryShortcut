@@ -8,7 +8,6 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "verbatimModuleSyntax": true,
     "moduleDetection": "force",
 
 
