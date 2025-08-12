@@ -59,7 +59,7 @@ async function logFunc(message) {
             browser.runtime.sendMessage({
                 source: "cs",
                 command: "login",
-                identifier: "",
+                identifier: identifier,
                 password: "",
                 error: ""
             });
