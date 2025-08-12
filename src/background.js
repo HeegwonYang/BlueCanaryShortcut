@@ -17,7 +17,7 @@ async function logFunc(message) {
     // get identifier and password from the message from the popup
     const identifier = message.identifier;
     const pass = message.password;
-    if (message.source === "cs") {
+    if (message.source === "background") {
         return;
     }
     if (message.command === "resume") {
@@ -29,8 +29,9 @@ async function logFunc(message) {
                 // resume session with the saved session data
                 let parsedSession = JSON.parse(sessionData.savedSession);
                 await agent.resumeSession(parsedSession);
+                // send message to 
                 browser.runtime.sendMessage({
-                    source: "cs",
+                    source: "background",
                     command: "login",
                     identifier: parsedSession.handle,
                     password: "",
@@ -57,7 +58,7 @@ async function logFunc(message) {
             let sessionData = JSON.stringify(await agent.session);
             await browser.storage.local.set({ 'savedSession': sessionData });
             browser.runtime.sendMessage({
-                source: "cs",
+                source: "background",
                 command: "login",
                 identifier: identifier,
                 password: "",
@@ -68,7 +69,7 @@ async function logFunc(message) {
         catch (error) {
             console.log("catch activated");
             browser.runtime.sendMessage({
-                source: "cs",
+                source: "background",
                 command: "error",
                 identifier: "",
                 password: "",
@@ -89,7 +90,7 @@ async function logFunc(message) {
         }
         catch (error) {
             browser.runtime.sendMessage({
-                source: "cs",
+                source: "background",
                 command: "error",
                 identifier: "",
                 password: "",

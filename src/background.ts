@@ -1,6 +1,5 @@
 import { AtpAgent, AtpSessionData, AtpSessionEvent } from '@atproto/api'
 
-// a non-persistent 
 type Message = {
         readonly source: string,
         command: string;
@@ -32,7 +31,7 @@ async function logFunc(message: Message) {
     const identifier = message.identifier;
     const pass = message.password;
 
-    if (message.source === "cs"){
+    if (message.source === "background"){
         return;
     }
 
@@ -47,8 +46,9 @@ async function logFunc(message: Message) {
 
                 await agent.resumeSession(parsedSession);
 
+                // send message to 
                 browser.runtime.sendMessage({
-                            source: "cs",
+                            source: "background",
                             command: "login",
                             identifier: parsedSession.handle,
                             password: "",
@@ -79,7 +79,7 @@ async function logFunc(message: Message) {
                 await browser.storage.local.set({'savedSession': sessionData});
                 
                 browser.runtime.sendMessage({
-                    source: "cs",
+                    source: "background",
                     command: "login",
                     identifier: identifier,
                     password: "",
@@ -91,7 +91,7 @@ async function logFunc(message: Message) {
             catch (error){
                 console.log("catch activated");
                 browser.runtime.sendMessage({
-                    source: "cs",
+                    source: "background",
                     command: "error",
                     identifier: "",
                     password: "",
@@ -122,7 +122,7 @@ async function logFunc(message: Message) {
 
             catch (error){
                 browser.runtime.sendMessage({
-                    source: "cs",
+                    source: "background",
                     command: "error",
                     identifier: "",
                     password: "",
