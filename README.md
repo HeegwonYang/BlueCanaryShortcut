@@ -6,5 +6,4 @@ A Firefox extension that adds a "shortcut" button to all posts on the bsky.app w
 
 [(Back to top)](#table-of-contents)
 
-
-The MIT License (MIT) 2017 - [Athitya Kumar](https://github.com/athityakumar/). Please have a look at the [LICENSE.md](LICENSE.md) for more details.
+The MIT License (MIT) 2017 - [Heegwon Yang](https://github.com/HeegwonYang/). Please have a look at the [LICENSE](LICENSE) for more details.
