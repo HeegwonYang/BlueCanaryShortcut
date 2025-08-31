@@ -1,4 +1,5 @@
 import { AtpAgent } from '@atproto/api';
+let portFromCS;
 const agent = new AtpAgent({
     service: 'https://bsky.social',
     persistSession: async (__, sess) => {
@@ -10,6 +11,40 @@ const agent = new AtpAgent({
         }
     }
 });
+browser.runtime.onConnect.addListener(connected);
+function connected(p) {
+    portFromCS = p;
+    portFromCS.postMessage({
+        source: "bg",
+        error: "hello from background script"
+    });
+    // receive messages from the cs port
+    portFromCS.onMessage.addListener(async (m) => {
+        let message = m;
+        if (message.command === "bookmark") {
+            try {
+                await resume();
+                let repo = (await agent.resolveHandle({ handle: message.identifier })).data.did;
+                // identifier ispassword is rkey, 
+                let post = await agent.getPost({ repo: repo, rkey: message.password });
+                console.log(post);
+                let results = await agent.withProxy('atproto_labeler', 'did:plc:w6yx4bltuzdmiolooi4kd6zt').createModerationReport({
+                    reasonType: 'com.atproto.moderation.defs#reasonOther',
+                    reason: 'Bookmark report made automatically with BlueCanary Shortcut',
+                    subject: {
+                        $type: 'com.atproto.repo.strongRef',
+                        uri: post.uri,
+                        cid: post.cid
+                    }
+                });
+                console.log(results);
+            }
+            catch (error) {
+                console.log(`failed to bookmark post: ${error}`);
+            }
+        }
+    });
+}
 //listen for one-off messages
 browser.runtime.onMessage.addListener(logFunc);
 async function logFunc(message) {
@@ -21,49 +56,34 @@ async function logFunc(message) {
         return;
     }
     if (message.command === "resume") {
-        const sessionData = await browser.storage.local.get(["savedSession"]);
-        console.log("retrieved session data: %s", sessionData.savedSession);
-        // if the popup opens and there's saved session data
-        if (sessionData !== undefined) {
-            try {
-                // resume session with the saved session data
-                let parsedSession = JSON.parse(sessionData.savedSession);
-                await agent.resumeSession(parsedSession);
-                // send message to 
-                browser.runtime.sendMessage({
-                    source: "background",
-                    command: "login",
-                    identifier: parsedSession.handle,
-                    password: "",
-                    error: ""
-                });
-            }
-            catch (e) {
-                console.log(e);
-                console.log("Invalid session data or no session found, log in manually");
-            }
-        }
-        else {
-            console.log("no session found");
-        }
+        resume();
     }
     if (message.command === "login") {
         try {
-            // attempt to log in via atproto api
-            let login = await agent.login({
-                identifier: identifier,
-                password: pass
-            });
-            console.log(login);
-            let sessionData = JSON.stringify(await agent.session);
-            await browser.storage.local.set({ 'savedSession': sessionData });
-            browser.runtime.sendMessage({
-                source: "background",
-                command: "login",
-                identifier: identifier,
-                password: "",
-                error: ""
-            });
+            if (identifier === undefined || pass === undefined) {
+                browser.runtime.sendMessage({
+                    source: "background",
+                    command: "error",
+                    identifier: "",
+                    password: "",
+                    error: "identifier and/or password are undefined"
+                });
+            }
+            else {
+                // attempt to log in via atproto api
+                let login = await agent.login({
+                    identifier: identifier,
+                    password: pass
+                });
+                console.log(login);
+                let sessionData = JSON.stringify(await agent.session);
+                await browser.storage.local.set({ 'savedSession': sessionData });
+                browser.runtime.sendMessage({
+                    source: "background",
+                    command: "login",
+                    identifier: identifier,
+                });
+            }
         }
         // if the login fails, send a message to the popup script to display the error screen and go back to the login screen.
         catch (error) {
@@ -71,8 +91,6 @@ async function logFunc(message) {
             browser.runtime.sendMessage({
                 source: "background",
                 command: "error",
-                identifier: "",
-                password: "",
                 error: "failed to login: incorrect handle/password"
             });
         }
@@ -97,5 +115,30 @@ async function logFunc(message) {
                 error: ""
             });
         }
+    }
+}
+async function resume() {
+    const sessionData = await browser.storage.local.get(["savedSession"]);
+    console.log("retrieved session data: %s", sessionData.savedSession);
+    // if the popup opens and there's saved session data
+    if (sessionData !== undefined) {
+        try {
+            // resume session with the saved session data
+            let parsedSession = JSON.parse(sessionData.savedSession);
+            await agent.resumeSession(parsedSession);
+            // send message to popup script to send the resumed session's handle
+            browser.runtime.sendMessage({
+                source: "background",
+                command: "login",
+                identifier: parsedSession.handle,
+            });
+        }
+        catch (e) {
+            console.log(e);
+            console.log("Invalid session data or no session found, log in manually");
+        }
+    }
+    else {
+        console.log("no session found");
     }
 }

@@ -2,9 +2,9 @@ window.addEventListener("DOMContentLoaded", function ()  {
     type Message = {
         readonly source: string
         command: string;
-        identifier: string;
-        password: string;
-        error: string;
+        identifier?: string;
+        password?: string;
+        error?: string;
     }
 
     var login = document.getElementById('login');
@@ -13,10 +13,7 @@ window.addEventListener("DOMContentLoaded", function ()  {
     // upon loading the popup, send a message to the background script to resume a previously-existing session
     browser.runtime.sendMessage({
         source: "popup",
-        command: "resume",
-        identifier: "",
-        password: "",
-        error: ""
+        command: "resume"
     });
     
     if (login){
@@ -26,7 +23,6 @@ window.addEventListener("DOMContentLoaded", function ()  {
                     command: "login",
                     identifier: (document.getElementById("user") as HTMLInputElement).value,
                     password: (document.getElementById("pass") as HTMLInputElement).value,
-                    error: ""
                 })
             }
         )
@@ -36,10 +32,7 @@ window.addEventListener("DOMContentLoaded", function ()  {
         logout.addEventListener("click", function () {
                 browser.runtime.sendMessage({
                     source: "popup",
-                    command: "logout",
-                    identifier: "",
-                    password: "",
-                    error: ""
+                    command: "logout"
                 })
             }
         )
@@ -60,7 +53,7 @@ window.addEventListener("DOMContentLoaded", function ()  {
              document.querySelector("#active-content")!.classList.remove("hidden");
 
              let handle = document.getElementById("handle");
-             if (handle) handle.innerHTML = message.identifier;
+             if (handle && message.identifier !== undefined) handle.innerHTML = message.identifier;
         }
         else if (message.command === "logout"){
              document.querySelector("#login-content")!.classList.remove("hidden");

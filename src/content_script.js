@@ -3,6 +3,8 @@ let bookmarkButton = document.createDocumentFragment();
 let buttonDiv = document.createElement("div");
 buttonDiv.className = "css-g5y9jx";
 buttonDiv.style = "flex: 1 1 0%; align-items: flex-start;";
+let secondDiv = document.createElement("div");
+secondDiv.className = "css-g5y9jx";
 let button = document.createElement("button");
 button.ariaLabel = "Bookmark";
 button.ariaPressed = "false";
@@ -24,7 +26,16 @@ path.setAttributeNS(null, "fill", "hsl(211, 20%, 56%)");
 path.setAttributeNS(null, "fill-rule", "evenodd");
 path.setAttributeNS(null, "clip-rule", "evenodd");
 path.setAttributeNS(null, "d", "M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z");
-bookmarkButton.appendChild(buttonDiv).appendChild(button).appendChild(svg).appendChild(path);
+bookmarkButton.appendChild(buttonDiv).appendChild(secondDiv).appendChild(button).appendChild(svg).appendChild(path);
+let csPort = browser.runtime.connect({ name: "cs-port" });
+csPort.postMessage({
+    source: "cs",
+    error: "hello from content script"
+});
+csPort.onMessage.addListener((m) => {
+    console.log("In content script, received message from background script: ");
+    console.log(m.error);
+});
 // add an observer that will check for any new posts in the feed and add a bookmark button in there if it isn't added yet
 const observer = new MutationObserver(() => {
     [...document.querySelectorAll("div[style*='flex-direction: row; justify-content: space-between; align-items: center; padding-top: 2px;']")]
@@ -51,13 +62,49 @@ const observer = new MutationObserver(() => {
     });
 });
 function addListeners(node) {
-    node.firstElementChild.firstElementChild.addEventListener("pointerenter", (event) => {
+    let filledSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    filledSvg.setAttributeNS(null, "class", "r-84gixx");
+    filledSvg.setAttributeNS(null, "fill", "none");
+    filledSvg.setAttributeNS(null, "width", node.querySelector("svg").getAttributeNS(null, "width"));
+    filledSvg.setAttributeNS(null, "viewBox", "0 0 24 24");
+    filledSvg.setAttributeNS(null, "height", node.querySelector("svg").getAttributeNS(null, "width"));
+    let filledPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    filledPath.setAttributeNS(null, "fill", "#208bfe");
+    filledPath.setAttributeNS(null, "fill-rule", "evenodd");
+    filledPath.setAttributeNS(null, "clip-rule", "evenodd");
+    filledPath.setAttributeNS(null, "d", "M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z");
+    // if the pointer hovers over the bookmark icon, change the background surrounding the icon
+    node.firstElementChild.firstElementChild.firstElementChild.addEventListener("pointerenter", (event) => {
         event.target.style.backgroundColor = "rgb(30, 41, 54)";
     });
-    node.firstElementChild.firstElementChild.addEventListener("pointerleave", (event) => {
+    //if it leaves the hovering range, change it back
+    node.firstElementChild.firstElementChild.firstElementChild.addEventListener("pointerleave", (event) => {
         event.target.style.backgroundColor = "rgba(0, 0, 0, 0)";
     });
     node.firstElementChild.firstElementChild.addEventListener("click", () => {
+    });
+    //if clicked on, replace the svg inside the button with the
+    node.firstElementChild.firstElementChild.firstElementChild.addEventListener("click", (event) => {
+        //send message to background script
+        let urlSplit;
+        //send message to background script
+        if (event.target.firstElementChild.getAttributeNS(null, "width") === "18") {
+            let url = event.target.parentElement.parentElement.parentElement.parentElement.firstElementChild.firstElementChild.lastElementChild.getAttribute("href");
+            console.log(url);
+            //urlSplit[2] will be the handle, //urlSplit[4] will be the rkey
+            urlSplit = url.split("/");
+        }
+        else {
+            let url = event.target.parentElement.parentElement.parentElement.parentElement.previousElementSibling.firstElementChild.getAttribute("href");
+            urlSplit = url.split("/");
+        }
+        csPort.postMessage({
+            source: "cs",
+            command: "bookmark",
+            identifier: urlSplit[2],
+            password: urlSplit[4]
+        });
+        event.stopPropagation();
     });
 }
 observer.observe(document, {
