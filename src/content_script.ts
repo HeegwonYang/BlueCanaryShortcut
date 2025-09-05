@@ -6,6 +6,9 @@ type Message = {
         error?: string;
 }
 
+// variable to keep track of the last bookmark icon clicked on
+let lastClicked: DocumentFragment;
+
 // compose the DOM node for the bookmark button
 let bookmarkButton = document.createDocumentFragment();
 
@@ -43,17 +46,25 @@ path.setAttributeNS(null, "fill-rule", "evenodd");
 path.setAttributeNS(null, "clip-rule", "evenodd");
 path.setAttributeNS(null, "d", "M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z");
 
-bookmarkButton.appendChild(buttonDiv).appendChild(secondDiv).appendChild(button).appendChild(svg).appendChild(path);
+bookmarkButton.appendChild(buttonDiv).appendChild(button).appendChild(secondDiv).appendChild(svg).appendChild(path);
 
 let csPort = browser.runtime.connect({ name: "cs-port" });
+
 csPort.postMessage({ 
     source: "cs",
     error: "hello from content script" 
 });
 
 csPort.onMessage.addListener((m) => {
-    console.log("In content script, received message from background script: ");
-    console.log((m as Message).error);
+    // if the post has been successfully added to bookmarks:
+    if ((m as Message).command = "fill"){
+        //change lastClicked
+        console.log(lastClicked);
+    }
+
+    // if the post has been successfully removed from bookmarks:
+
+    
 })
 
 
@@ -65,6 +76,8 @@ const observer = new MutationObserver(() => {
                     // clone the base bookmark button node and then add all the necessary event listeners to it
                     const clone = bookmarkButton.cloneNode(true);
                     addListeners(clone as DocumentFragment);
+
+                    // check this post--- if this is already in the bookmarks feed, hide the "unfilled" bookmark and show the "filled" icon
                     el.appendChild(clone);
                 }
             }
@@ -101,14 +114,16 @@ function addListeners(node: DocumentFragment) {
     filledPath.setAttributeNS(null, "fill-rule", "evenodd");
     filledPath.setAttributeNS(null, "clip-rule", "evenodd");
     filledPath.setAttributeNS(null, "d", "M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z");
-      
+    
+    let button = node.firstElementChild!.firstElementChild!.firstElementChild!;
+
     // if the pointer hovers over the bookmark icon, change the background surrounding the icon
-    node.firstElementChild!.firstElementChild!.firstElementChild!.addEventListener("pointerenter", (event) => {
+    button.addEventListener("pointerenter", (event) => {
         (event.target as HTMLElement)!.style.backgroundColor = "rgb(30, 41, 54)"
     });
 
     //if it leaves the hovering range, change it back
-    node.firstElementChild!.firstElementChild!.firstElementChild!.addEventListener("pointerleave", (event) => {
+    button.addEventListener("pointerleave", (event) => {
         (event.target as HTMLElement)!.style.backgroundColor = "rgba(0, 0, 0, 0)"
     });
 
@@ -116,8 +131,9 @@ function addListeners(node: DocumentFragment) {
     });
 
     //if clicked on, replace the svg inside the button with the
-    node.firstElementChild!.firstElementChild!.firstElementChild!.addEventListener("click", (event) => {
-        //send message to background script
+    button.addEventListener("click", (event) => {
+        // set bookmark icon as the last clicked
+        lastClicked = node;
 
         let urlSplit: string[];
         //send message to background script
@@ -133,7 +149,7 @@ function addListeners(node: DocumentFragment) {
             let url = (event.target as HTMLElement)!.parentElement!.parentElement!.parentElement!.parentElement!.previousElementSibling!.firstElementChild!.getAttribute("href");
             //
             if (url === null){
-                url = window.location.href.
+                url = window.location.href
             }
             urlSplit = url!.split("/");
         }
@@ -146,6 +162,9 @@ function addListeners(node: DocumentFragment) {
             password: urlSplit[4]
         })
 
+        //
+
+        // keep this element from activating other elements underneath this element
         event.stopPropagation();
 
         

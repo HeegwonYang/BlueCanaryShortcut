@@ -1,3 +1,5 @@
+// variable to keep track of the last bookmark icon clicked on
+let lastClicked;
 // compose the DOM node for the bookmark button
 let bookmarkButton = document.createDocumentFragment();
 let buttonDiv = document.createElement("div");
@@ -33,8 +35,12 @@ csPort.postMessage({
     error: "hello from content script"
 });
 csPort.onMessage.addListener((m) => {
-    console.log("In content script, received message from background script: ");
-    console.log(m.error);
+    // if the post has been successfully added to bookmarks:
+    if (m.command = "fill") {
+        //change lastClicked
+        console.log(lastClicked);
+    }
+    // if the post has been successfully removed from bookmarks:
 });
 // add an observer that will check for any new posts in the feed and add a bookmark button in there if it isn't added yet
 const observer = new MutationObserver(() => {
@@ -73,19 +79,21 @@ function addListeners(node) {
     filledPath.setAttributeNS(null, "fill-rule", "evenodd");
     filledPath.setAttributeNS(null, "clip-rule", "evenodd");
     filledPath.setAttributeNS(null, "d", "M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z");
+    let button = node.firstElementChild.firstElementChild.firstElementChild;
     // if the pointer hovers over the bookmark icon, change the background surrounding the icon
-    node.firstElementChild.firstElementChild.firstElementChild.addEventListener("pointerenter", (event) => {
+    button.addEventListener("pointerenter", (event) => {
         event.target.style.backgroundColor = "rgb(30, 41, 54)";
     });
     //if it leaves the hovering range, change it back
-    node.firstElementChild.firstElementChild.firstElementChild.addEventListener("pointerleave", (event) => {
+    button.addEventListener("pointerleave", (event) => {
         event.target.style.backgroundColor = "rgba(0, 0, 0, 0)";
     });
     node.firstElementChild.firstElementChild.addEventListener("click", () => {
     });
     //if clicked on, replace the svg inside the button with the
-    node.firstElementChild.firstElementChild.firstElementChild.addEventListener("click", (event) => {
-        //send message to background script
+    button.addEventListener("click", (event) => {
+        // set bookmark icon as the last clicked
+        lastClicked = node;
         let urlSplit;
         //send message to background script
         if (event.target.firstElementChild.getAttributeNS(null, "width") === "18") {
@@ -96,6 +104,10 @@ function addListeners(node) {
         }
         else {
             let url = event.target.parentElement.parentElement.parentElement.parentElement.previousElementSibling.firstElementChild.getAttribute("href");
+            //
+            if (url === null) {
+                url = window.location.href;
+            }
             urlSplit = url.split("/");
         }
         csPort.postMessage({
@@ -104,6 +116,8 @@ function addListeners(node) {
             identifier: urlSplit[2],
             password: urlSplit[4]
         });
+        //
+        // keep this element from activating other elements underneath this element
         event.stopPropagation();
     });
 }

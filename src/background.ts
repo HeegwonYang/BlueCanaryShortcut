@@ -9,6 +9,7 @@ type Message = {
 }
 
 let portFromCS: browser.runtime.Port;
+let localBookmarks;
 
 const agent = new AtpAgent({
     service: 'https://bsky.social',
@@ -38,8 +39,9 @@ function connected(p: browser.runtime.Port){
         if (message.command === "bookmark"){
             try {
                 await resume();
+                // identifier is the handle, password is rkey 
+
                 let repo = (await agent.resolveHandle({handle: message.identifier!})).data.did;
-                // identifier ispassword is rkey, 
                 let post = await agent.getPost({repo: repo, rkey: message.password!})
                 console.log(post);
                 let results = await agent.withProxy('atproto_labeler', 'did:plc:w6yx4bltuzdmiolooi4kd6zt').createModerationReport({
@@ -107,6 +109,8 @@ async function logFunc(message: Message) {
                         identifier: identifier,
                     })
                 }
+
+                updateLocalBookmarks();
                 
             
             } 
@@ -133,6 +137,7 @@ async function logFunc(message: Message) {
                     (error) => {console.log(error);}
                 );
 
+                localBookmarks = [];
 
                 // if logout is successful, send a message
                 browser.runtime.sendMessage({
@@ -153,6 +158,27 @@ async function logFunc(message: Message) {
         }
 }
 
+async function updateLocalBookmarks(){
+    // save current bookmarks as current local bookmark list to reference
+                let getBookmarks = await agent.app.bsky.feed.getFeed({
+                    feed: "at://did:plc:w6yx4bltuzdmiolooi4kd6zt/app.bsky.feed.generator/bookmarks",
+                    limit: 100
+                });
+
+                localBookmarks = getBookmarks.data.feed;
+
+                while (getBookmarks.data.cursor !== ""){
+                     getBookmarks = await agent.app.bsky.feed.getFeed({
+                        feed: "at://did:plc:w6yx4bltuzdmiolooi4kd6zt/app.bsky.feed.generator/bookmarks",
+                        limit: 100,
+                        cursor: getBookmarks.data.cursor
+                    });
+                    localBookmarks.concat(getBookmarks.data.feed);
+                }
+
+                console.log(localBookmarks);
+}
+
 async function resume(){
     const sessionData = await browser.storage.local.get(["savedSession"]);
         console.log("retrieved session data: %s", sessionData.savedSession);
@@ -170,6 +196,9 @@ async function resume(){
                             command: "login",
                             identifier: parsedSession.handle,
                 })
+
+                updateLocalBookmarks();
+                
             }
             catch (e) {
                 console.log(e);
